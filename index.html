@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Invitație Balul Bobocilor 2026</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Montserrat:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+    body {
+      background-color: #0b0c10;
+      background-image: 
+        radial-gradient(circle at 50% 20%, rgba(255, 0, 127, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(0, 240, 255, 0.12) 0%, transparent 50%),
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 2px, transparent 2px, transparent 15px);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Montserrat', sans-serif;
+      overflow-x: hidden;
+      padding: 16px;
+    }
+
+    .retro-stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: 
+        radial-gradient(1.5px 1.5px at 15% 25%, #fff 100%, transparent),
+        radial-gradient(2px 2px at 85% 15%, #00f0ff 100%, transparent),
+        radial-gradient(2px 2px at 70% 75%, #ff007f 100%, transparent),
+        radial-gradient(1.5px 1.5px at 20% 85%, #ffe600 100%, transparent);
+      z-index: 1;
+    }
+
+    .envelope-wrapper {
+      position: relative;
+      width: 320px;
+      height: 220px;
+      perspective: 1200px;
+      cursor: pointer;
+      z-index: 5;
+      transition: transform 0.3s ease;
+    }
+
+    .envelope-wrapper:active { transform: scale(0.98); }
+
+    .envelope {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #1f1d24;
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 35px rgba(0, 240, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 160px solid transparent;
+      border-right: 160px solid transparent;
+      border-top: 125px solid #292633;
+      transform-origin: top center;
+      transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 4;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+    }
+
+    .envelope-pocket {
+      position: absolute;
+      inset: 0;
+      border-left: 160px solid #1c1a24;
+      border-right: 160px solid #1c1a24;
+      border-bottom: 110px solid #23202e;
+      border-top: 110px solid transparent;
+      border-radius: 0 0 12px 12px;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .wax-seal {
+      position: absolute;
+      top: 85px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 56px;
+      height: 56px;
+      background: radial-gradient(circle at 35% 35%, #ff2a85, #99003d);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6), 0 0 12px rgba(255, 0, 127, 0.5);
+      z-index: 5;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      font-size: 24px;
+      color: #ffe600;
+    }
+
+    .tap-hint {
+      position: absolute;
+      bottom: -45px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #00f0ff;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      white-space: nowrap;
+      animation: pulse 1.6s infinite ease-in-out;
+      text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.8; }
+      50% { transform: translateX(-50%) scale(1.06); opacity: 1; }
+    }
+
+    .card {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.6);
+      width: 90%;
+      max-width: 400px;
+      background: #fbf7ec;
+      border-radius: 12px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.85);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.25);
+      padding: 22px 18px;
+      border: 6px solid #111;
+      max-height: 94vh;
+      overflow-y: auto;
+    }
+
+    .card.opened {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .card-header-badge {
+      background: #111;
+      color: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .title-sub {
+      font-family: 'Permanent Marker', cursive;
+      color: #ffe600;
+      font-size: 19px;
+    }
+
+    .title-year {
+      font-size: 36px;
+      font-weight: 900;
+      background: linear-gradient(45deg, #00f0ff, #fff, #ff007f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.1;
+    }
+
+    .title-retro {
+      font-family: 'Permanent Marker', cursive;
+      color: #ff007f;
+      font-size: 15px;
+    }
+
+    .invitation-badge {
+      font-family: 'Permanent Marker', cursive;
+      font-size: 24px;
+      letter-spacing: 3px;
+      color: #111;
+      text-align: center;
+      margin: 8px 0;
+      border-bottom: 2px dashed #bbb;
+      padding-bottom: 4px;
+    }
+
+    .invitation-body {
+      text-align: center;
+      color: #222;
+      font-size: 13.5px;
+      line-height: 1.45;
+    }
+
+    .salutation {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+      font-style: italic;
+      color: #111;
+      margin-bottom: 8px;
+    }
+
+    .highlight-box {
+      margin: 12px 0;
+      background: #e1faff;
+      border-radius: 8px;
+      padding: 10px;
+      border: 1px dashed #00c4d6;
+    }
+
+    .date-time {
+      font-weight: 900;
+      color: #008b9b;
+      font-size: 16px;
+    }
+
+    .location {
+      font-family: 'Permanent Marker', cursive;
+      font-size: 16px;
+      color: #111;
+      margin-top: 3px;
+    }
+
+    .closing {
+      font-family: 'Caveat', cursive;
+      font-size: 24px;
+      font-weight: 700;
+      color: #111;
+      margin-top: 12px;
+    }
+
+    .organizer {
+      font-size: 11px;
+      font-weight: 700;
+      color: #555;
+      margin-top: 4px;
+    }
+
+    .close-btn {
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+      background: #111;
+      color: #fff;
+      border: none;
+      padding: 9px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="retro-stars"></div>
+
+  <div class="envelope-wrapper" id="envelopeWrapper" onclick="openEnvelope()">
+    <div class="envelope">
+      <div class="envelope-flap" id="flap"></div>
+      <div class="wax-seal" id="seal">★</div>
+      <div class="envelope-pocket"></div>
+    </div>
+    <div class="tap-hint" id="hint">Apasă pentru a deschide ✉</div>
+  </div>
+
+  <div class="card" id="card">
+    <div class="card-header-badge">
+      <div class="title-sub">Balul Bobocilor</div>
+      <div class="title-year">2026</div>
+      <div class="title-retro">is the new 2016</div>
+    </div>
+
+    <div class="invitation-badge">INVITAȚIE</div>
+
+    <div class="invitation-body">
+      <div class="salutation">Dragi colegi și prieteni,</div>
+      <p>Avem deosebita plăcere de a vă invita la <strong>Balul Bobocilor 2026</strong>, un eveniment plin de energie, entuziasm și voie bună, unde trecutul se întâlnește cu prezentul!</p>
+      
+      <div class="highlight-box">
+        <p style="font-size: 12px; color: #444; margin-bottom: 2px;">Vă așteptăm să ne fiți alături pe</p>
+        <div class="date-time">7 Decembrie, ora 21:00</div>
+        <div class="location">la Club One din Regie!</div>
+      </div>
+
+      <p style="font-size: 12.5px; font-style: italic; color: #444;">
+        Prezența voastră ne-ar face o deosebită plăcere și va contribui la atmosfera magică a serii!
+      </p>
+
+      <div class="closing">Vă așteptăm cu drag! ♡</div>
+      <div class="organizer">Organizatorii Balului Bobocilor 2026</div>
+    </div>
+
+    <button class="close-btn" onclick="closeCard(event)">Închide</button>
+  </div>
+
+  <script>
+    function openEnvelope() {
+      document.getElementById('flap').style.transform = 'rotateX(180deg)';
+      document.getElementById('seal').style.opacity = '0';
+      document.getElementById('hint').style.opacity = '0';
+
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#00f0ff', '#ff007f', '#ffe600', '#ffffff']
+      });
+
+      setTimeout(() => {
+        document.getElementById('card').classList.add('opened');
+      }, 350);
+    }
+
+    function closeCard(e) {
+      e.stopPropagation();
+      document.getElementById('card').classList.remove('opened');
+      setTimeout(() => {
+        document.getElementById('flap').style.transform = 'rotateX(0deg)';
+        document.getElementById('seal').style.opacity = '1';
+        document.getElementById('hint').style.opacity = '1';
+      }, 350);
+    }
+  </script>
+</body>
+</html>
